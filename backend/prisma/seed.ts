@@ -1,63 +1,104 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
-import { Role } from '../src/models/user.model'
+import { prismaClient } from './prisma'
+import { hashPassword } from '../src/utils/hash'
+import { TransactionType } from '@prisma/client'
 
-const prisma = new PrismaClient()
+const demoEmail = 'demo@financy.com'
 
-const hashPassword = async (plainPassword: string): Promise<string> => {
-  const salt = await bcrypt.genSalt(10)
-  return bcrypt.hash(plainPassword, salt)
+const categories = [
+  'Alimentação',
+  'Transporte',
+  'Moradia',
+  'Lazer',
+  'Saúde',
+  'Educação',
+  'Salário',
+]
+
+const randomAmount = (min: number, max: number) => {
+  return Number((Math.random() * (max - min) + min).toFixed(2))
+}
+
+const randomDateInLastMonths = (monthsBack: number) => {
+  const now = new Date()
+  const monthOffset = Math.floor(Math.random() * monthsBack)
+  const day = Math.max(1, Math.floor(Math.random() * 28))
+  return new Date(now.getFullYear(), now.getMonth() - monthOffset, day)
+}
+
+const randomTitle = (type: TransactionType) => {
+  const incomes = ['Salário', 'Freelance', 'Bônus', 'Venda extra']
+  const expenses = ['Supermercado', 'Uber', 'Internet', 'Farmácia', 'Restaurante']
+  const list = type === 'income' ? incomes : expenses
+  return list[Math.floor(Math.random() * list.length)]
 }
 
 async function main() {
-  console.log('🌱 Iniciando seed...')
+  const existing = await prismaClient.user.findUnique({
+    where: { email: demoEmail },
+  })
 
-  // Verificar se o usuário admin já existe
-  const existingAdmin = await prisma.user.findUnique({
-    where: {
-      email: 'admin@mindshare.com',
+  if (existing) {
+    console.log('Usuário demo já existe, seed ignorado.')
+    return
+  }
+
+  const password = await hashPassword('demo123')
+
+  const user = await prismaClient.user.create({
+    data: {
+      name: 'Usuário Demo',
+      email: demoEmail,
+      password,
     },
   })
 
-  if (existingAdmin) {
-    console.log('✅ Usuário admin já existe, atualizando para admin...')
-    await prisma.user.update({
-      where: {
-        email: 'admin@mindshare.com',
-      },
-      data: {
-        role: Role.admin,
-      },
-    })
-    console.log('✅ Usuário admin atualizado com sucesso!')
-  } else {
-    // Criar usuário admin
-    const hashedPassword = await hashPassword('admin123')
+  const createdCategories = await Promise.all(
+    categories.map((name) =>
+      prismaClient.category.create({
+        data: {
+          name,
+          userId: user.id,
+        },
+      })
+    )
+  )
 
-    const admin = await prisma.user.create({
-      data: {
-        name: 'Administrador',
-        email: 'admin@mindshare.com',
-        password: hashedPassword,
-        role: Role.admin,
-      },
-    })
+  const selectedCategories = createdCategories.filter(
+    (category) => category.name !== 'Salário'
+  )
+  const salaryCategory = createdCategories.find(
+    (category) => category.name === 'Salário'
+  )
 
-    console.log('✅ Usuário admin criado com sucesso!')
-    console.log('📧 Email: admin@mindshare.com')
-    console.log('🔑 Senha: admin123')
-    console.log('👤 ID:', admin.id)
-  }
+  const transactionsCount = 15
+  const transactions = Array.from({ length: transactionsCount }).map(() => {
+    const isIncome = Math.random() > 0.7
+    const type = isIncome ? TransactionType.income : TransactionType.expense
+    const category =
+      type === TransactionType.income
+        ? salaryCategory ?? createdCategories[0]
+        : selectedCategories[Math.floor(Math.random() * selectedCategories.length)]
 
-  console.log('✨ Seed concluído!')
+    return {
+      title: randomTitle(type),
+      amount: randomAmount(type === TransactionType.income ? 1500 : 25, type === TransactionType.income ? 5200 : 450),
+      type,
+      date: randomDateInLastMonths(6),
+      userId: user.id,
+      categoryId: category.id,
+    }
+  })
+
+  await prismaClient.transaction.createMany({ data: transactions })
+
+  console.log('Seed concluído com usuário demo e transações.')
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Erro ao executar seed:', e)
+  .catch((error) => {
+    console.error(error)
     process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    await prismaClient.$disconnect()
   })
-

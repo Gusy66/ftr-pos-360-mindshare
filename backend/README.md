@@ -1,8 +1,8 @@
-# Financy Web
+# Financy API
 
-Aplicação React para gerenciamento de finanças com GraphQL.
+API GraphQL para gerenciamento de finanças (transações e categorias).
 
-## Checklist (Front-end)
+## Checklist (Back-end)
 
 - [ ] O usuário pode criar uma conta e fazer login
 - [ ] O usuário pode ver e gerenciar apenas as transações e categorias criadas por ele
@@ -17,27 +17,36 @@ Aplicação React para gerenciamento de finanças com GraphQL.
 
 ## Requisitos
 
-- React
+- Node.js
 - TypeScript
-- Vite
 - GraphQL
+- Prisma
+- SQLite
 
 ## Como rodar
 
 1. Instale as dependências:
    - `npm install`
 2. Configure o `.env` com base no `.env.example`:
-   - `VITE_BACKEND_URL=http://localhost:4000/graphql`
-3. Inicie o projeto:
+   - `JWT_SECRET=...`
+   - `DATABASE_URL="file:./dev.db"`
+3. Rode as migrações e gere o client:
+   - `npm run migrate`
+   - `npm run generate`
+4. Inicie o servidor:
    - `npm run dev`
 
+O endpoint GraphQL fica disponível em `http://localhost:4000/graphql`.
+
 ## Usuário de demonstração
+
+Para popular o banco com dados fictícios:
+
+- `npm run seed`
 
 Credenciais:
 - Email: `demo@financy.com`
 - Senha: `demo123`
-
-Obs: rode o seed no backend para criar esses dados.
 
 ## Testes manuais (checklist)
 

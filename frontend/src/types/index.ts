@@ -2,11 +2,9 @@ export interface User {
   id: string
   name: string
   email: string
-  role?: string
   createdAt?: string
   updatedAt?: string
 }
-
 
 export interface RegisterInput {
   name: string
@@ -14,39 +12,28 @@ export interface RegisterInput {
   password: string
 }
 
-
 export interface LoginInput {
   email: string
   password: string
 }
 
-export interface Idea {
+export interface Category {
+  id: string
+  createdAt: string
+  updatedAt?: string
+  name: string
+}
+
+export type TransactionType = "income" | "expense"
+
+export interface Transaction {
   id: string
   title: string
-  description?: string | null
-  authorId: string
-  author?: User
-  countVotes?: number
-  comments?: Comment[]
-  votes?: Vote[]
+  amount: number
+  type: TransactionType
+  date: string
+  categoryId: string
+  category?: Category
   createdAt: string
   updatedAt?: string
 }
-
-export interface Comment {
-  id: string
-  ideaId: string
-  authorId: string
-  author?: User
-  content: string
-  createdAt: string
-  updatedAt?: string
-}
-
-export interface Vote {
-  id: string
-  ideaId: string
-  userId: string
-  createdAt: string
-}
-

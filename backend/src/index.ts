@@ -6,10 +6,9 @@ import { buildSchema } from 'type-graphql'
 import { expressMiddleware } from '@as-integrations/express5'
 import { AuthResolver } from './resolvers/auth.resolver'
 import { UserResolver } from './resolvers/user.resolver'
+import { CategoryResolver } from './resolvers/category.resolver'
+import { TransactionResolver } from './resolvers/transaction.resolver'
 import { buildContext } from './graphql/context'
-import { IdeaResolver } from './resolvers/idea.resolver'
-import { CommentResolver } from './resolvers/comment.resolver'
-import { VoteResolver } from './resolvers/vote.resolver'
 
 async function bootstrap() {
   const app = express()
@@ -24,9 +23,8 @@ async function bootstrap() {
     resolvers: [
       AuthResolver,
       UserResolver,
-      IdeaResolver,
-      CommentResolver,
-      VoteResolver,
+      CategoryResolver,
+      TransactionResolver,
     ],
     validate: false,
     emitSchemaFile: './schema.graphql',

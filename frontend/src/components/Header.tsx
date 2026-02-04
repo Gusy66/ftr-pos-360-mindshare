@@ -1,16 +1,18 @@
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/auth"
-import logoIcon from "@/assets/logo-icon.svg"
 import { Button } from "./ui/button"
-import { Lightbulb, LogOut, Users } from "lucide-react"
+import { Home, LogOut, Tags, User, Wallet } from "lucide-react"
 import { Avatar, AvatarFallback } from "./ui/avatar"
+import logo from "@/assets/logo.svg"
 
 export function Header() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const location = useLocation()
   const navigate = useNavigate()
-  const isIdeasPage = location.pathname === "/"
-  const isMembersPage = location.pathname === "/members"
+  const isDashboardPage = location.pathname === "/"
+  const isTransactionsPage = location.pathname === "/transactions"
+  const isCategoriesPage = location.pathname === "/categories"
+  const isProfilePage = location.pathname === "/profile"
 
   const handleLogout = () => {
     logout()
@@ -22,27 +24,47 @@ export function Header() {
       {isAuthenticated && (
         <div className="flex justify-between w-full">
           <div className="min-w-48">
-            <img src={logoIcon} />
+            <img src={logo} className="h-8" />
           </div>
           <div className="flex items-center gap-4">
             <Link to="/">
               <Button
                 size="sm"
                 className="gap-2"
-                variant={isIdeasPage ? "default" : "ghost"}
+                variant={isDashboardPage ? "default" : "ghost"}
               >
-                <Lightbulb className="h-4 w-4" />
-                Ideais
+                <Home className="h-4 w-4" />
+                Dashboard
               </Button>
             </Link>
-            <Link to="/members">
+            <Link to="/transactions">
               <Button
                 size="sm"
                 className="gap-2"
-                variant={isMembersPage ? "default" : "ghost"}
+                variant={isTransactionsPage ? "default" : "ghost"}
               >
-                <Users className="h-4 w-4" />
-                Membros
+                <Wallet className="h-4 w-4" />
+                Transações
+              </Button>
+            </Link>
+            <Link to="/categories">
+              <Button
+                size="sm"
+                className="gap-2"
+                variant={isCategoriesPage ? "default" : "ghost"}
+              >
+                <Tags className="h-4 w-4" />
+                Categorias
+              </Button>
+            </Link>
+            <Link to="/profile">
+              <Button
+                size="sm"
+                className="gap-2"
+                variant={isProfilePage ? "default" : "ghost"}
+              >
+                <User className="h-4 w-4" />
+                Perfil
               </Button>
             </Link>
           </div>

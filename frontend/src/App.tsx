@@ -2,9 +2,11 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import { Layout } from "@/components/Layout"
 import { Login } from "./pages/Auth/Login"
 import { Signup } from "./pages/Auth/Signup"
-import { IdeasPage } from "./pages/Ideias"
+import { Dashboard } from "./pages/Dashboard"
+import { TransactionsPage } from "./pages/Transactions"
+import { CategoriesPage } from "./pages/Categories"
+import { ProfilePage } from "./pages/Profile"
 import { useAuthStore } from "./stores/auth"
-import { Members } from "./pages/Members"
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore()
@@ -17,6 +19,8 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const { isAuthenticated } = useAuthStore()
+
   return (
     <Layout>
       <Routes>
@@ -36,19 +40,28 @@ function App() {
             </PublicRoute>
           }
         />
+        <Route path="/" element={isAuthenticated ? <Dashboard /> : <Login />} />
         <Route
-          path="/"
+          path="/transactions"
           element={
             <ProtectedRoute>
-              <IdeasPage />
+              <TransactionsPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/members"
+          path="/categories"
           element={
             <ProtectedRoute>
-              <Members />
+              <CategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

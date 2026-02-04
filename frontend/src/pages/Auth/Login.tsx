@@ -33,7 +33,7 @@ export function Login() {
         toast.success("Login realizado com sucesso!")
       }
     } catch (error) {
-      toast.success("Falha ao realizar o login!")
+      toast.error("Falha ao realizar o login!")
     } finally {
       setLoading(false)
     }
@@ -78,6 +78,17 @@ export function Login() {
             <Button type="submit" className="w-full" disabled={loading}>
               Entrar
             </Button>
+            <div className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">Usuário teste (dados fictícios)</p>
+              <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:gap-4">
+                <span>
+                  Email: <strong className="text-foreground">demo@financy.com</strong>
+                </span>
+                <span>
+                  Senha: <strong className="text-foreground">demo123</strong>
+                </span>
+              </div>
+            </div>
           </form>
         </CardContent>
       </Card>

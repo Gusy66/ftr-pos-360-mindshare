@@ -1,14 +1,13 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { apolloClient } from "@/lib/graphql/apollo"
-import type { User ,RegisterInput, LoginInput} from '@/types'
+import type { User, RegisterInput, LoginInput } from '@/types'
 import { REGISTER } from '@/lib/graphql/mutations/Register'
 import { LOGIN } from '../lib/graphql/mutations/Login'
 
 type RegisterMutationData = {
   register: {
     token: string
-    refreshToken: string
     user: User
   }
 }
@@ -16,7 +15,6 @@ type RegisterMutationData = {
 type LoginMutationData = {
   login: {
     token: string
-    refreshToken: string
     user: User
   }
 }
@@ -55,7 +53,6 @@ export const useAuthStore = create<AuthState>() (
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    role: user.role,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt
                   },
@@ -92,7 +89,6 @@ export const useAuthStore = create<AuthState>() (
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    role: user.role,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt
                   },

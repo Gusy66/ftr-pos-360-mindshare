@@ -1,4 +1,3 @@
-import { UserModel } from '../models/user.model'
 import { prismaClient } from '../../prisma/prisma'
 import { LoginInput, RegisterInput } from '../dtos/input/auth.input'
 import { comparePassword, hashPassword } from '../utils/hash'
@@ -14,7 +13,7 @@ export class AuthService {
     if (!existingUser) throw new Error('Usuário não cadastrado!')
     const compare = await comparePassword(data.password, existingUser.password)
     if (!compare) throw new Error('Senha inválida!')
-    return this.gerenerateTokens(existingUser)
+    return this.generateToken(existingUser)
   }
 
   async register(data: RegisterInput) {
@@ -34,12 +33,11 @@ export class AuthService {
         password: hash,
       },
     })
-    return this.gerenerateTokens(user)
+    return this.generateToken(user)
   }
 
-  gerenerateTokens(user: UserModel) {
+  generateToken(user: { id: string; email: string }) {
     const token = signJwt({ id: user.id, email: user.email }, '1d')
-    const refreshToken = signJwt({ id: user.id, email: user.email }, '1d')
-    return { token, refreshToken, user }
+    return { token, user }
   }
 }
