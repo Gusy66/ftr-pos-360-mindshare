@@ -1,8 +1,20 @@
 import { gql } from "@apollo/client"
 
 export const LIST_TRANSACTIONS = gql`
-  query ListTransactions($search: String, $month: Int, $year: Int) {
-    listTransactions(search: $search, month: $month, year: $year) {
+  query ListTransactions(
+    $search: String
+    $month: Int
+    $year: Int
+    $type: String
+    $categoryId: String
+  ) {
+    listTransactions(
+      search: $search
+      month: $month
+      year: $year
+      type: $type
+      categoryId: $categoryId
+    ) {
       id
       title
       amount

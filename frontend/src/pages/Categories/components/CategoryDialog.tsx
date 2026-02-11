@@ -61,13 +61,16 @@ export function CategoryDialog({ open, onOpenChange, category, onCompleted }: Ca
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar categoria" : "Nova categoria"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Organize suas transações com categorias
+          </p>
           <div className="space-y-2">
-            <Label htmlFor="category-name">Nome da categoria</Label>
+            <Label htmlFor="category-name">Título</Label>
             <Input
               id="category-name"
               value={name}
@@ -75,12 +78,20 @@ export function CategoryDialog({ open, onOpenChange, category, onCompleted }: Ca
               placeholder="Ex.: Alimentação"
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="category-desc">Descrição</Label>
+            <Input
+              id="category-desc"
+              placeholder="Descrição da categoria (opcional)"
+            />
+            <span className="text-xs text-muted-foreground">Opcional</span>
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isEdit ? "Salvar" : "Criar"}
+              Salvar
             </Button>
           </DialogFooter>
         </form>

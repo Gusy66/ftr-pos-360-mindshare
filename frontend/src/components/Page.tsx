@@ -4,8 +4,6 @@ interface PageProps {
 
 export function Page({ children }: PageProps) {
   return (
-    <div className="min-h-[calc(100vh-9rem)] bg-white rounded-xl p-12">
-      {children}
-    </div>
+    <div className="min-h-[calc(100vh-9rem)]">{children}</div>
   )
 }

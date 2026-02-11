@@ -6,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Page } from "@/components/Page"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
+import {
+  ArrowUpRight,
+  ArrowDownRight,
+  ChevronRight,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react"
 
 type ListTransactionsData = {
   listTransactions: Transaction[]
@@ -29,246 +36,184 @@ export function Dashboard() {
     }
   }, [transactions])
 
-  const categoryTotals = useMemo(() => {
+  const categoryStats = useMemo(() => {
     const map = new Map<
       string,
-      { name: string; income: number; expense: number }
+      { name: string; total: number; count: number }
     >()
     transactions.forEach((transaction) => {
       const categoryId = transaction.categoryId
       const name = transaction.category?.name || "Sem categoria"
-      const current = map.get(categoryId) ?? { name, income: 0, expense: 0 }
-      if (transaction.type === "income") {
-        current.income += transaction.amount
-      } else {
-        current.expense += transaction.amount
-      }
+      const current = map.get(categoryId) ?? { name, total: 0, count: 0 }
+      current.total += transaction.amount
+      current.count += 1
       map.set(categoryId, current)
     })
-    return Array.from(map.values()).sort(
-      (a, b) => b.income + b.expense - (a.income + a.expense)
-    )
+    return Array.from(map.values()).sort((a, b) => b.total - a.total)
   }, [transactions])
 
-  const maxCategoryTotal = Math.max(
-    1,
-    ...categoryTotals.map((item) => item.income + item.expense)
-  )
-
-  const totalVolume = summary.income + summary.expense
+  const badgeClasses = (name: string) => {
+    const palette: Record<string, string> = {
+      Alimentação: "bg-blue-100 text-blue-700",
+      Transporte: "bg-purple-100 text-purple-700",
+      Mercado: "bg-orange-100 text-orange-700",
+      Entretenimento: "bg-pink-100 text-pink-700",
+      Saúde: "bg-red-100 text-red-700",
+      Salário: "bg-emerald-100 text-emerald-700",
+      Utilidades: "bg-amber-100 text-amber-700",
+    }
+    return palette[name] ?? "bg-muted text-muted-foreground"
+  }
 
   const latestTransactions = transactions.slice(0, 5)
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+
+  const formatDate = (value: string) =>
+    new Date(value).toLocaleDateString("pt-BR")
 
   return (
     <Page>
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">
-              Visão geral das suas finanças
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button asChild variant="outline">
-              <Link to="/categories">Nova categoria</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/transactions">Nova transação</Link>
-            </Button>
-          </div>
-        </div>
-
         <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Receitas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <span className="text-2xl font-semibold text-emerald-600">
-                {summary.income.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
-              </span>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Despesas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <span className="text-2xl font-semibold text-rose-600">
-                {summary.expense.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
-              </span>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Saldo</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <span className="text-2xl font-semibold">
-                {summary.balance.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
-              </span>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Receitas x Despesas</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {totalVolume === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Adicione transações para visualizar o gráfico.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Receitas</span>
-                      <span className="text-emerald-600">
-                        {summary.income.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </span>
-                    </div>
-                    <div className="mt-2 h-2 w-full rounded-full bg-emerald-100">
-                      <div
-                        className="h-2 rounded-full bg-emerald-500"
-                        style={{
-                          width: `${(summary.income / totalVolume) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Despesas</span>
-                      <span className="text-rose-600">
-                        {summary.expense.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </span>
-                    </div>
-                    <div className="mt-2 h-2 w-full rounded-full bg-rose-100">
-                      <div
-                        className="h-2 rounded-full bg-rose-500"
-                        style={{
-                          width: `${(summary.expense / totalVolume) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Totais por categoria</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {categoryTotals.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Nenhuma categoria com transações ainda.
-                </p>
-              ) : (
-                categoryTotals.map((category) => {
-                  const total = category.income + category.expense
-                  return (
-                    <div key={category.name} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>{category.name}</span>
-                        <span className="font-medium">
-                          {total.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })}
-                        </span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-muted">
-                        <div
-                          className="h-2 rounded-full bg-primary"
-                          style={{
-                            width: `${(total / maxCategoryTotal) * 100}%`,
-                          }}
-                        />
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>
-                          Receitas:{" "}
-                          {category.income.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })}
-                        </span>
-                        <span>
-                          Despesas:{" "}
-                          {category.expense.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Últimas transações</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {latestTransactions.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                Nenhuma transação cadastrada ainda.
-              </p>
-            )}
-            {latestTransactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between rounded-lg border px-4 py-3"
-              >
-                <div>
-                  <p className="font-medium">{transaction.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {transaction.category?.name || "Sem categoria"} •{" "}
-                    {new Date(transaction.date).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-                <span
-                  className={
-                    transaction.type === "income"
-                      ? "text-emerald-600"
-                      : "text-rose-600"
-                  }
-                >
-                  {transaction.amount.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
-                </span>
+          <Card className="rounded-2xl border-border/60">
+            <CardHeader className="flex-row items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Saldo total</p>
+                <CardTitle className="mt-2 text-xl">
+                  {formatCurrency(summary.balance)}
+                </CardTitle>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              <div className="rounded-full bg-muted p-2">
+                <ArrowUpRight className="h-4 w-4 text-primary" />
+              </div>
+            </CardHeader>
+          </Card>
+          <Card className="rounded-2xl border-border/60">
+            <CardHeader className="flex-row items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Receitas do mês</p>
+                <CardTitle className="mt-2 text-xl">
+                  {formatCurrency(summary.income)}
+                </CardTitle>
+              </div>
+              <div className="rounded-full bg-emerald-50 p-2">
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
+              </div>
+            </CardHeader>
+          </Card>
+          <Card className="rounded-2xl border-border/60">
+            <CardHeader className="flex-row items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Despesas do mês</p>
+                <CardTitle className="mt-2 text-xl">
+                  {formatCurrency(summary.expense)}
+                </CardTitle>
+              </div>
+              <div className="rounded-full bg-rose-50 p-2">
+                <TrendingDown className="h-4 w-4 text-rose-600" />
+              </div>
+            </CardHeader>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
+          <Card className="rounded-2xl border-border/60">
+            <CardHeader className="flex-row items-center justify-between">
+              <CardTitle className="text-sm font-semibold text-muted-foreground">
+                Transações recentes
+              </CardTitle>
+              <Button variant="ghost" size="sm" asChild className="gap-2">
+                <Link to="/transactions">
+                  Ver todas <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {latestTransactions.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma transação cadastrada ainda.
+                </p>
+              )}
+              {latestTransactions.map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="flex items-center justify-between rounded-xl border px-4 py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                        transaction.type === "income"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-rose-100 text-rose-700"
+                      }`}
+                    >
+                      {transaction.type === "income" ? (
+                        <ArrowUpRight className="h-4 w-4" />
+                      ) : (
+                        <ArrowDownRight className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{transaction.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(transaction.date)}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs ${badgeClasses(
+                      transaction.category?.name || "Sem categoria"
+                    )}`}
+                  >
+                    {transaction.category?.name || "Sem categoria"}
+                  </span>
+                </div>
+              ))}
+              <Button variant="ghost" size="sm" className="w-full gap-2" asChild>
+                <Link to="/transactions">+ Nova transação</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl border-border/60">
+            <CardHeader className="flex-row items-center justify-between">
+              <CardTitle className="text-sm font-semibold text-muted-foreground">
+                Categorias
+              </CardTitle>
+              <Button variant="ghost" size="sm" asChild className="gap-2">
+                <Link to="/categories">
+                  Gerenciar <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {categoryStats.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma categoria cadastrada ainda.
+                </p>
+              ) : (
+                categoryStats.slice(0, 5).map((category) => (
+                  <div
+                    key={category.name}
+                    className="flex items-center justify-between rounded-xl border px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-medium">{category.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {category.count} itens
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold">
+                      {formatCurrency(category.total)}
+                    </span>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Page>
   )

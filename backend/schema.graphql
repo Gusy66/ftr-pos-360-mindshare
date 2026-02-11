@@ -50,7 +50,7 @@ type Mutation {
 
 type Query {
   listCategories: [CategoryModel!]!
-  listTransactions(month: Int, search: String, year: Int): [TransactionModel!]!
+  listTransactions(categoryId: String, month: Int, search: String, type: String, year: Int): [TransactionModel!]!
   me: UserModel!
 }
 

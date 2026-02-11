@@ -95,18 +95,42 @@ export function TransactionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar transação" : "Nova transação"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-2 rounded-lg border p-2">
+            <button
+              type="button"
+              onClick={() => setType("expense")}
+              className={`flex items-center justify-center rounded-md border px-3 py-2 text-sm ${
+                type === "expense"
+                  ? "border-rose-200 bg-rose-50 text-rose-700"
+                  : "border-transparent text-muted-foreground"
+              }`}
+            >
+              Despesa
+            </button>
+            <button
+              type="button"
+              onClick={() => setType("income")}
+              className={`flex items-center justify-center rounded-md border px-3 py-2 text-sm ${
+                type === "income"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-transparent text-muted-foreground"
+              }`}
+            >
+              Receita
+            </button>
+          </div>
           <div className="space-y-2">
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">Descrição</Label>
             <Input
               id="title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder="Ex.: Supermercado"
+              placeholder="Ex.: Almoço no restaurante"
             />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -118,20 +142,12 @@ export function TransactionDialog({
                 step="0.01"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
-                placeholder="0,00"
+                placeholder="R$ 0,00"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="type">Tipo</Label>
-              <select
-                id="type"
-                value={type}
-                onChange={(event) => setType(event.target.value as TransactionType)}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="income">Receita</option>
-                <option value="expense">Despesa</option>
-              </select>
+              <Input value={type === "income" ? "Receita" : "Despesa"} readOnly />
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -165,7 +181,7 @@ export function TransactionDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isEdit ? "Salvar" : "Criar"}
+              Salvar
             </Button>
           </DialogFooter>
         </form>

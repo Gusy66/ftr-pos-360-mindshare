@@ -8,6 +8,8 @@ type ListTransactionFilters = {
   search?: string
   month?: number
   year?: number
+  type?: 'income' | 'expense'
+  categoryId?: string
 }
 
 export class TransactionService {
@@ -16,6 +18,8 @@ export class TransactionService {
       userId: string
       title?: { contains: string }
       date?: { gte?: Date; lt?: Date }
+      type?: 'income' | 'expense'
+      categoryId?: string
     } = { userId }
 
     if (filters?.search) {
@@ -31,6 +35,14 @@ export class TransactionService {
         : new Date(year + 1, 0, 1)
 
       where.date = { gte: start, lt: end }
+    }
+
+    if (filters?.type) {
+      where.type = filters.type
+    }
+
+    if (filters?.categoryId) {
+      where.categoryId = filters.categoryId
     }
 
     return prismaClient.transaction.findMany({
